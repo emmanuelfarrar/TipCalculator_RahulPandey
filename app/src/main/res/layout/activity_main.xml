@@ -74,12 +74,11 @@
         android:layout_width="200dp"
         android:layout_height="20dp"
         android:layout_marginStart="32dp"
-        app:layout_constraintStart_toEndOf="@id/tvTipPercent"
+        android:max="30"
         app:layout_constraintBottom_toBottomOf="@id/tvTipPercent"
-        app:layout_constraintTop_toTopOf="@id/tvTipPercent"
+        app:layout_constraintStart_toEndOf="@id/tvTipPercent"
 
-        tools:layout_editor_absoluteX="104dp"
-        tools:layout_editor_absoluteY="108dp" />
+        app:layout_constraintTop_toTopOf="@id/tvTipPercent" />
 
     <TextView
         android:id="@+id/tvTipAmount"
