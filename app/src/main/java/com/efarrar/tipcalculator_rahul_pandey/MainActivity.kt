@@ -1,11 +1,13 @@
 package com.efarrar.tipcalculator_rahul_pandey
 
+import android.animation.ArgbEvaluator
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.SeekBar
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 
 /*
@@ -17,9 +19,15 @@ import kotlinx.android.synthetic.main.activity_main.*
           Step 3: Add code to catch changes in etBase and update textViews
           Step 4: Call computeTipAndTotal() created in step 3 so displayed amounts change as slider moves
           Step 5: Fix bugs and formatting for proper currency amounts
-                  5.1: Bug crashes app when clearing the values in etBase
-                  5.2: formatting the decimal point so only 2 after point
+            5.1: Bug crashes app when clearing the values in etBase
+            5.2: formatting the decimal point so only 2 after point
+    EP 4: Adding design elements to the app. Color change, creative text that changes based on percentage number, footer
+            6.1 Added tvFooter, emoji, all caps, other formatting to this tv
+            6.2 Color scheme for the file added colorBackground (colors.xml/styles.xml)
+            6.3 Added tvTipDescription and code for it to change when we us onProgressChanged()
+            6.4 Changing the color of tvTipDescription using Interpolation via ArgbEvaluator class
  */
+
 /*
     Notes about the code:
     URL: https://youtu.be/29qX_-ckZkQ
@@ -41,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         //Setting initial seekBar value and tvTipPercent to 15 (Step 2.3)
         seekBarTip.progress = INITIAL_TIP_PERCENT //15
         tvTipPercent.text = "$INITIAL_TIP_PERCENT%" //15
+        updateTipDescription(INITIAL_TIP_PERCENT)   //(Step 6.1c)
 
         //Listener that is used to return data when the seekBar is changed (Step 2.1)
         seekBarTip.setOnSeekBarChangeListener(object:SeekBar.OnSeekBarChangeListener{
@@ -49,6 +58,9 @@ class MainActivity : AppCompatActivity() {
 
                 //when the progress is changed update the tvTipPercentage (Step 2.2)
                 tvTipPercent.text = "$progress%"
+
+                //calling updateTipDescription() to update the tvTipDescription (Step 6.1)
+                updateTipDescription(progress)
 
                 computeTipAndTotal()        //(Step 4.1)
             }
@@ -71,6 +83,34 @@ class MainActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
         })
+    }
+
+    //function to update tvTipDescription as seekBar changes 6.1b
+    private fun updateTipDescription(tipPercent: Int) {
+       val tipDescription : String
+        when (tipPercent) {
+            in 0..9 -> tipDescription = "Poor"
+            in 10..14 -> tipDescription = "Acceptable"
+            in 15..19 -> tipDescription = "Good"
+            in 20..24 -> tipDescription = "Great"
+            else -> tipDescription = "Amazing"
+        }
+        //once we have the value update the tvTipDescription
+        tvTipDescription.text = tipDescription
+
+        /* (Step 6.4)
+        Using ArgbEvaluator class we can get the value from tipPercent cast it to a floating value since ArgbEvaluator
+        works with float values and then set the color scale to go between colorWorstTip -> colorBestTip
+        (red ->green). Then cast it as int.
+        - After this set it to a value/variable (val color) and then set the tvTipDescription to color val
+        Note the setTextColor method uses Int so this is why we have to cast back to Int
+         */
+        val color = ArgbEvaluator().evaluate(tipPercent.toFloat() / seekBarTip.max,
+            ContextCompat.getColor(this, R.color.colorWorstTip),
+            ContextCompat.getColor(this, R.color.colorBestTip)
+        ) as Int
+
+        tvTipDescription.setTextColor(color)
     }
 
     //(Step 3.2)
